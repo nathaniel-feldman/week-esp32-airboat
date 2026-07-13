@@ -5,7 +5,7 @@ around the house. It's driven by two above-water fans, steered from an Xbox
 controller over Bluetooth, and runs on an ESP32 with a motor driver salvaged
 out of a disassembled RC car. The hull is a plastic food container.
 
-![The airboat during an on-water test](images/airboat.jpg)
+(images/airboat.jpg)
 
 *(Pictured mid-test in a bathtub — it's watertight and drives under its own power.)*
 
