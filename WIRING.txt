@@ -1,0 +1,80 @@
+ESP32 RC AIRBOAT — WIRING
+=========================
+
+Two separate power sources, joined only at a common ground rail.
+  - ESP32 powered from USB (power bank or PC)
+  - Motors powered from the 6V battery pack
+This split prevents motor current surges from browning out the ESP32.
+
+
+SIGNAL WIRING  (ESP32  ->  MX1515)
+----------------------------------
+  ESP32 D25  ->  MX1515 pin 1 + pin 5   (VCC1, VCC2 - logic power / arm)
+  ESP32 D27  ->  MX1515 pin 2           (INA1 - motor 1 forward)
+  ESP32 D26  ->  MX1515 pin 3           (INB1 - motor 1 reverse)
+  ESP32 D33  ->  MX1515 pin 6           (INA2 - motor 2 forward)
+  ESP32 D32  ->  MX1515 pin 7           (INB2 - motor 2 reverse)
+
+
+POWER
+-----
+  USB 5V       ->  ESP32 VIN            (ESP32 power - NOT from battery)
+  6V pack (+)  ->  MX1515 pin 4 + pin 8 (VDD1, VDD2 - motor power)
+  6V pack (-)  ->  ground rail
+
+
+MOTORS
+------
+  Motor 1  ->  MX1515 pin 16 + pin 13   (OUTA1, OUTB1)
+  Motor 2  ->  MX1515 pin 12 + pin 9    (OUTA2, OUTB2)
+  (swap a motor's two wires to reverse its direction)
+
+
+GROUND RAIL  (one shared node - required)
+-----------------------------------------
+  ESP32 GND
+  MX1515 pins 10, 11, 14, 15
+  6V pack (-)
+  all capacitor (-) legs
+
+
+CAPACITORS
+----------
+  10uF   across MX1515 VCC node (pins 1/5 / D25) to ground   [REQUIRED]
+  100uF  across 6V supply, near the MX1515                    [recommended]
+  100uF  near the ESP32 VIN                                   [recommended]
+  (striped / short leg = negative -> ground)
+
+
+MX1515 PINOUT  (notch left, pin 1 bottom-left)
+----------------------------------------------
+        +--------\_/--------+
+   VCC1 | 1              16 | OUTA1  -> Motor 1
+   INA1 | 2              15 | GND
+   INB1 | 3              14 | GND
+   VDD1 | 4              13 | OUTB1  -> Motor 1
+   VCC2 | 5              12 | OUTA2  -> Motor 2
+   INA2 | 6              11 | GND
+   INB2 | 7              10 | GND
+   VDD2 | 8               9 | OUTB2  -> Motor 2
+        +-------------------+
+
+  Note: pinout follows the MX1515H (SOP-16) datasheet. If using a
+  DIP-16 part, confirm pins 10/11/14/15 are common ground (~0 ohm
+  between them) with a multimeter before powering on.
+
+
+CONTROL LOGIC (per channel)
+---------------------------
+  INA   INB    Result
+  PWM   LOW    forward at duty
+  LOW   PWM    reverse at duty
+  LOW   LOW    coast
+  HIGH  HIGH   brake
+
+
+CONTROLS
+--------
+  Left stick (vertical)   ->  Motor 1
+  Right stick (vertical)  ->  Motor 2
+  Differential thrust steers the boat - no rudder.
